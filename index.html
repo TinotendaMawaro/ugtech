@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#050508">
+    <meta name="description" content="UG Tech - Zimbabwe's elite provider for AI CCTV surveillance, premium web development, school portals, IT consultancy, and phone accessories.">
+    <title>UG Tech | Premium CCTV, Web & Solar Solutions</title>
+
+    <!-- Preconnect to font origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Tailwind CSS (Development) - replace with PostCSS plugin for production -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#ff6b00',
+                            orangeLight: '#ff8533',
+                            black: '#050508',
+                            darkGray: '#0d0d12',
+                            lightGray: '#161620',
+                            white: '#f8fafc'
+                        }
+                    },
+                    boxShadow: {
+                        'neon-orange': '0 0 20px rgba(255, 107, 0, 0.18)',
+                        'neon-glow': '0 0 35px rgba(255, 107, 0, 0.4)',
+                        'glass-shadow': '0 8px 32px 0 rgba(0, 0, 0, 0.5)',
+                    },
+                    screens: {
+                        'xs': '375px',
+                        'sm': '640px',
+                        'md': '768px',
+                        'lg': '1024px',
+                        'xl': '1280px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts with display swap for faster mobile rendering -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Mobile-first critical CSS inlined for faster LCP -->
+    <style>
+        /* Critical mobile-first base styles */
+        @media (max-width: 640px) {
+            .glass-panel {
+                backdrop-filter: blur(16px) saturate(150%);
+                -webkit-backdrop-filter: blur(16px) saturate(150%);
+            }
+            body {
+                -webkit-tap-highlight-color: transparent;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-y: none;
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+            }
+            /* Disable 3D tilt on mobile */
+            .catalog-card {
+                transform: none !important;
+                transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease !important;
+            }
+            .catalog-card:hover {
+                transform: none !important;
+            }
+            /* Hide custom cursor on touch devices */
+            #custom-cursor-ring,
+            #custom-cursor-dot {
+                display: none !important;
+            }
+        }
+    </style>
+
+    <!-- Custom Stylesheet Loaded With media="print" to not block render -->
+    <link rel="stylesheet" href="css/style.css" media="print" onload="this.media='all'; this.onload=null;">
+    <noscript><link rel="stylesheet" href="css/style.css"></noscript>
+
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Leaflet Map JS (non-blocking for below-fold map) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+</head>
+
+<body class="relative min-h-screen pb-24 md:pb-0 bg-brand-black text-white antialiased">
+
+    <!-- ===== MOBILE PERFORMANCE HINT ===== -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Sci-Fi Cyber Grid Backdrop -->
+    <div class="cyber-grid" aria-hidden="true"></div>
+
+    <!-- Custom Cursor Elements (Hidden on touch devices via CSS) -->
+    <div id="custom-cursor-ring" class="fixed top-0 left-0 w-8 h-8 border-2 border-brand-orange rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2 z-[9999] mix-blend-screen opacity-0 sm:opacity-100 hidden md:block" style="transition: transform 0.08s ease-out;" aria-hidden="true"></div>
+    <div id="custom-cursor-dot" class="fixed top-0 left-0 w-2 h-2 bg-brand-orange rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2 z-[9999] mix-blend-screen opacity-0 sm:opacity-100 hidden md:block" aria-hidden="true"></div>
+
+    <!-- Interactive Background Particle System Canvas (GPU optimized) -->
+    <canvas id="bg-particles" class="fixed inset-0 w-full h-full pointer-events-none z-0 will-change-transform" aria-hidden="true"></canvas>
+
+    <!-- Continuous blinking system status -->
+    <div class="fixed top-4 right-4 z-50 system-status hidden sm:block" aria-label="System status">
+      <span class="status-dot"></span>
+      <span class="status-label text-xs text-gray-500 font-mono">System Active</span>
+    </div>
+
+    <!-- Global Background Gradients (Reduced animation for mobile) -->
+    <div class="absolute top-10 left-10 w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] bg-brand-orange/15 rounded-full glow-sphere animate-pulse-slow" aria-hidden="true"></div>
+    <div class="absolute top-[40%] right-10 w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] bg-brand-orange/5 rounded-full glow-sphere animate-pulse-slow" style="animation-delay: -4s;" aria-hidden="true"></div>
+    <div class="absolute bottom-10 left-1/3 w-[250px] h-[250px] sm:w-[400px] sm:h-[400px] bg-brand-orange/10 rounded-full glow-sphere animate-pulse-slow" style="animation-delay: -8s;" aria-hidden="true"></div>
+
+    <!-- ========== HEADER / NAVIGATION ========== -->
+    <header id="navbar" class="sticky top-0 z-50 w-full glass-panel border-b border-white/5 transition-all duration-300" role="banner">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+
+                <!-- Logo -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-brand-orange to-black border border-brand-orange/40 shadow-neon-orange">
+                        <i class="fa-solid fa-shield-halved text-brand-white text-lg sm:text-xl"></i>
+                        <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-orange opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-brand-orange"></span>
+                        </span>
+                    </div>
+                    <div class="leading-tight">
+                        <span class="text-xl sm:text-2xl font-bold tracking-tight text-white">UG<span class="text-brand-orange"> tech</span></span>
+                        <p class="text-[8px] sm:text-[9px] text-gray-400 tracking-widest uppercase font-semibold hidden sm:block">Fix & Supply Experts</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation (Hidden on mobile) -->
+                <nav class="hidden lg:flex items-center gap-6 xl:gap-8 text-sm font-medium" aria-label="Main navigation">
+                    <a href="#hero" class="nav-link text-gray-300 hover:text-brand-orange transition-all duration-200 active:text-brand-orange">Home</a>
+                    <a href="#about" class="nav-link text-gray-300 hover:text-brand-orange transition-all duration-200 active:text-brand-orange">Who We Are</a>
+                    <a href="#services" class="nav-link text-gray-300 hover:text-brand-orange transition-all duration-200 active:text-brand-orange">Services</a>
+                    <a href="#projects" class="nav-link text-gray-300 hover:text-brand-orange transition-all duration-200 active:text-brand-orange">Case Studies</a>
+                    <a href="#diagnostics" class="nav-link text-gray-300 hover:text-brand-orange transition-all duration-200 active:text-brand-orange">Diagnostics</a>
+                    <a href="#quote-estimator" class="nav-link text-gray-300 hover:text-brand-orange transition-all duration-200 active:text-brand-orange">Configurator</a>
+                </nav>
+
+                 <!-- Desktop WhatsApp CTA -->
+                <a href="https://wa.me/263778141047?text=Hi%20UG%20tech,%20I%27m%20interested%20in%20your%20services!"
+                   target="_blank"
+                   class="hidden lg:flex items-center gap-2 px-5 h-12 rounded-xl bg-brand-orange text-white font-semibold hover:bg-brand-orangeLight hover:shadow-neon-glow hover:-translate-y-0.5 transition-all duration-300 group active:scale-95">
+                    <i class="fa-brands fa-whatsapp text-lg group-hover:rotate-12 transition-transform"></i>
+                    <span>WhatsApp</span>
+                </a>
+
+                <!-- Mobile Menu Button with haptic active state -->
+                <button id="mobile-menu-btn" class="md:hidden flex items-center justify-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors focus:outline-none active:scale-90 active:bg-brand-orange/20" aria-label="Toggle menu" aria-expanded="false">
+                    <i class="fa-solid fa-bars text-2xl" id="menu-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer with safe-area padding -->
+        <div id="mobile-menu" class="hidden md:hidden glass-panel border-t border-white/5 absolute left-0 w-full transition-all duration-300 z-40 pb-safe">
+            <div class="px-4 pt-4 pb-6 space-y-2">
+                <a href="#hero" class="mobile-nav-link block px-4 py-3.5 rounded-xl text-gray-300 hover:text-brand-orange hover:bg-white/5 transition-all active:bg-brand-orange/10 active:text-brand-orange text-base font-medium">Home</a>
+                <a href="#about" class="mobile-nav-link block px-4 py-3.5 rounded-xl text-gray-300 hover:text-brand-orange hover:bg-white/5 transition-all active:bg-brand-orange/10 active:text-brand-orange text-base font-medium">Who We Are</a>
+                <a href="#services" class="mobile-nav-link block px-4 py-3.5 rounded-xl text-gray-300 hover:text-brand-orange hover:bg-white/5 transition-all active:bg-brand-orange/10 active:text-brand-orange text-base font-medium">Services</a>
+                <a href="#projects" class="mobile-nav-link block px-4 py-3.5 rounded-xl text-gray-300 hover:text-brand-orange hover:bg-white/5 transition-all active:bg-brand-orange/10 active:text-brand-orange text-base font-medium">Case Studies</a>
+                <a href="#diagnostics" class="mobile-nav-link block px-4 py-3.5 rounded-xl text-gray-300 hover:text-brand-orange hover:bg-white/5 transition-all active:bg-brand-orange/10 active:text-brand-orange text-base font-medium">Diagnostics</a>
+                <a href="#quote-estimator" class="mobile-nav-link block px-4 py-3.5 rounded-xl text-gray-300 hover:text-brand-orange hover:bg-white/5 transition-all active:bg-brand-orange/10 active:text-brand-orange text-base font-medium">Configurator</a>
+                <div class="pt-4 border-t border-white/5 mt-4">
+                    <a href="https://wa.me/263778141047?text=Hi%20UG%20tech,%20I%20m%20looking%20for%20some%20services%20and%20supplies."
+                       target="_blank"
+                       class="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-brand-orange text-white font-semibold shadow-neon-orange hover:bg-brand-orangeLight transition-all active:scale-95 text-base">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                        <span>Chat via WhatsApp</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========== HERO SECTION ========== -->
+    <section id="hero" class="relative pt-8 pb-20 md:py-24 lg:py-32 overflow-hidden z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                
+                <!-- Left: Headline and Hook -->
+                <div class="lg:col-span-5 space-y-5 text-center lg:text-left reveal-element" id="hero-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-brand-orange font-semibold tracking-wider uppercase mb-2">
+                        <span class="h-2 w-2 rounded-full bg-brand-orange pulse-accent"></span>
+                        Premium Supply & Installation Hub
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white leading-tight font-space">
+                        We <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-brand-orangeLight">Fix & Supply</span> Smarter Technology.
+                    </h1>
+                    <p class="text-gray-400 text-base sm:text-lg max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                        Zimbabwe's elite provider for advanced AI CCTV surveillance systems, cutting-edge solar cameras, premium web development, school portals, IT consultancy, and elite phone accessories. 
+                    </p>
+                    
+                    <!-- Direct Action Badges - stacked on mobile -->
+                    <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 pt-2">
+                        <div class="flex items-center gap-2 text-sm text-gray-300 bg-brand-darkGray/60 px-4 py-2.5 rounded-xl border border-white/5 glass-panel">
+                            <i class="fa-solid fa-map-pin text-brand-orange"></i>
+                            <span>7 Rhino Close, Vainona</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-gray-300 bg-brand-darkGray/60 px-4 py-2.5 rounded-xl border border-white/5 glass-panel">
+                            <i class="fa-solid fa-envelope text-brand-orange"></i>
+                            <span>sales@ugtech.co.zw</span>
+                        </div>
+                    </div>
+
+                    <!-- CTA Buttons -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-4">
+                        <a href="#quote-estimator" class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl bg-brand-orange text-white font-bold hover:bg-brand-orangeLight hover:-translate-y-1 transition-all shadow-neon-orange duration-300 active:scale-95 text-base">
+                            <span>Get Free Quote Estimate</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <a href="#services" class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl bg-white/5 text-white font-bold hover:bg-white/10 border border-white/10 transition-all duration-300 active:scale-95 text-base">
+                            Explore Services
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right: "Video AI" Interactive Dynamic Simulated CCTV Analytics Center -->
+                <div class="lg:col-span-7 relative reveal-element" id="hero-right" style="transition-delay: 150ms;">
+                    <div class="relative glass-panel rounded-2xl overflow-hidden shadow-2xl p-3 sm:p-4 border border-white/10 hover:border-brand-orange/40 shimmer-card">
+                        <div class="hud-corners"><span></span></div>
+                        
+                        <!-- Top Chrome Bar -->
+                        <div class="flex items-center justify-between border-b border-white/10 pb-2 sm:pb-3 mb-2 sm:mb-3">
+                            <div class="flex items-center gap-1.5 sm:gap-2">
+                                <span class="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-red-500"></span>
+                                <span class="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-yellow-500"></span>
+                                <span class="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-green-500"></span>
+                                <span class="ml-2 text-[10px] sm:text-xs font-mono text-gray-400 font-bold">UG_TECH_AI_SURVEILLANCE_V2.5</span>
+                            </div>
+                            <div class="flex items-center gap-2 sm:gap-3">
+                                <span class="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 rounded bg-brand-orange/20 border border-brand-orange/30 text-[9px] sm:text-[10px] text-brand-orange font-mono font-bold animate-pulse">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-brand-orange"></span> SURVEILLANCE VIDEO
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Canvas/Screen Area for AI Video Processing with touch support -->
+                        <div class="relative bg-black rounded-xl overflow-hidden aspect-[16/10] border border-white/5">
+                            <canvas id="ai-video-canvas" class="w-full h-full object-cover block cursor-crosshair touch-none"></canvas>
+                            
+                            <!-- Interactive Scan Line Overlay -->
+                            <div class="absolute top-0 left-0 w-full h-[2px] sm:h-[3px] bg-gradient-to-r from-transparent via-brand-orange to-transparent opacity-80 scan-line pointer-events-none"></div>
+
+                            <!-- Interactive Dashboard Control HUD Overlays -->
+                            <div class="absolute top-2 sm:top-3 left-2 sm:left-3 flex flex-col gap-1 pointer-events-none font-mono">
+                                <div class="bg-black/80 backdrop-blur px-2 py-1 rounded text-[9px] sm:text-[10px] text-green-400 border border-green-500/30 flex items-center gap-1.5 sm:gap-2">
+                                    <i class="fa-solid fa-signal animate-pulse"></i> CAM_VAINONA_01 : DYNAMIC PAN
+                                </div>
+                                <div class="bg-black/80 backdrop-blur px-2 py-1 rounded text-[9px] sm:text-[10px] text-white border border-white/10">
+                                    GRID REF: <span id="hud-coords" class="text-brand-orange">31.0772, -17.7562</span>
+                                </div>
+                            </div>
+
+                            <div class="absolute top-2 sm:top-3 right-2 sm:right-3 flex flex-col gap-1 font-mono">
+                                <div class="bg-black/80 backdrop-blur px-2 py-1 rounded text-[9px] sm:text-[10px] text-brand-orange border border-brand-orange/30 text-right">
+                                    FRAME RATE: <span class="font-bold">60.0 FPS</span>
+                                </div>
+                            </div>
+
+                            <!-- Control buttons with mobile-friendly touch targets -->
+                            <div class="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 right-2 sm:right-3 flex justify-between items-center bg-black/80 backdrop-blur p-2 sm:p-2.5 rounded-lg border border-white/10 font-mono text-[9px] sm:text-[10px] gap-2 flex-wrap z-10">
+                                <div class="flex items-center gap-2 sm:gap-3">
+                                    <button onclick="setAiMode('face')" id="btn-mode-face" class="px-2 py-1.5 sm:py-1 rounded bg-brand-orange text-black font-bold border border-brand-orange/50 transition-all active:scale-95 text-[9px] sm:text-[10px] min-h-[36px]">FACE DETECT</button>
+                                    <button onclick="setAiMode('thermal')" id="btn-mode-thermal" class="px-2 py-1.5 sm:py-1 rounded bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 transition-all active:scale-95 text-[9px] sm:text-[10px] min-h-[36px]">THERMAL SCAN</button>
+                                    <button onclick="setAiMode('motion')" id="btn-mode-motion" class="px-2 py-1.5 sm:py-1 rounded bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 transition-all active:scale-95 text-[9px] sm:text-[10px] min-h-[36px]">MOTION LOG</button>
+                                </div>
+                                <span class="text-gray-400 hidden sm:inline" id="ai-scan-status">3D space active. Tap/move cursor to target.</span>
+                            </div>
+                        </div>
+
+                        <!-- Info Strip below Video Feed -->
+                        <div class="mt-3 sm:mt-4 grid grid-cols-3 gap-2 text-center text-[10px] sm:text-xs font-mono border-t border-white/10 pt-2 sm:pt-3">
+                            <div class="p-1.5 sm:p-2 bg-white/5 rounded">
+                                <p class="text-gray-400 text-[9px] sm:text-[10px] uppercase">Outdoor Solar CAM</p>
+                                <p class="text-brand-orange font-bold font-space mt-0.5 text-xs sm:text-sm">Dual PTZ Link</p>
+                            </div>
+                            <div class="p-1.5 sm:p-2 bg-white/5 rounded">
+                                <p class="text-gray-400 text-[9px] sm:text-[10px] uppercase">Total System Span</p>
+                                <p class="text-brand-orange font-bold font-space mt-0.5 text-xs sm:text-sm">2Ch - 16Ch</p>
+                            </div>
+                            <div class="p-1.5 sm:p-2 bg-white/5 rounded">
+                                <p class="text-gray-400 text-[9px] sm:text-[10px] uppercase">CCTV Support</p>
+                                <p class="text-brand-orange font-bold font-space mt-0.5 text-xs sm:text-sm">Fix & Supply</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Glowing Decorative Accents -->
+                    <div class="absolute -bottom-4 sm:-bottom-6 -right-4 sm:-right-6 w-24 h-24 sm:w-32 sm:h-32 bg-brand-orange/20 rounded-full blur-2xl z-0" aria-hidden="true"></div>
+                    <div class="absolute -top-4 sm:-top-6 -left-4 sm:-left-6 w-24 h-24 sm:w-32 sm:h-32 bg-brand-orange/10 rounded-full blur-2xl z-0" aria-hidden="true"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Infinite Scroll Partner Brands Marquee -->
+    <section class="py-4 sm:py-6 border-y border-white/5 bg-brand-black/90 relative overflow-hidden z-10" aria-label="Partner brands">
+        <div class="absolute left-0 top-0 h-full w-16 sm:w-24 bg-gradient-to-r from-brand-black to-transparent z-20 pointer-events-none"></div>
+        <div class="absolute right-0 top-0 h-full w-16 sm:w-24 bg-gradient-to-l from-brand-black to-transparent z-20 pointer-events-none"></div>
+        
+        <div class="flex items-center whitespace-nowrap animate-marquee">
+            <!-- Brand Loop Set 1 -->
+            <div class="inline-flex items-center gap-10 sm:gap-16 px-4">
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-solid fa-video"></i> HIKVISION</span>
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-solid fa-eye"></i> DAHUA</span>
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-solid fa-solar-panel"></i> GROWATT</span>
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-solid fa-bolt"></i> TESLA</span>
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-brands fa-apple"></i> APPLE MFI</span>
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-brands fa-android"></i> SAMSUNG</span>
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-solid fa-microchip"></i> UNV</span>
+            </div>
+            <div class="inline-flex items-center gap-10 sm:gap-16 px-4">
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-solid fa-video"></i> HIKVISION</span>
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-solid fa-eye"></i> DAHUA</span>
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-solid fa-solar-panel"></i> GROWATT</span>
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-solid fa-bolt"></i> TESLA</span>
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-brands fa-apple"></i> APPLE MFI</span>
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-brands fa-android"></i> SAMSUNG</span>
+                <span class="text-xs sm:text-sm font-space font-bold tracking-widest text-gray-500 uppercase hover:text-brand-orange transition-colors duration-300 flex items-center gap-1.5 sm:gap-2"><i class="fa-solid fa-microchip"></i> UNV</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== ABOUT SECTION ========== -->
+    <section id="about" class="py-16 sm:py-20 bg-brand-darkGray/40 relative border-b border-white/5 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-4 reveal-element">
+                <span class="text-brand-orange text-sm font-semibold uppercase tracking-widest font-mono">Precision & Reliability</span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white font-space">Why Professionals Trust UG Tech</h2>
+                <p class="text-gray-400 text-sm sm:text-base">We don't just sell equipment; we handle your security architecture and software systems from concept design, equipment provisioning, to seamless physical installation and custom web integration.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+                <!-- Pillar Card 1 -->
+                <div class="catalog-card glass-panel p-6 sm:p-8 rounded-2xl group reveal-element" style="transition-delay: 50ms;">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-brand-orange/10 border border-brand-orange/30 flex items-center justify-center text-brand-orange text-xl sm:text-2xl mb-5 sm:mb-6 group-hover:bg-brand-orange group-hover:text-black transition-all duration-500">
+                        <i class="fa-solid fa-toolbox"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3">Professional Fix & Supply</h3>
+                    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">
+                        Complete support system. We supply original premium tech gear and handle expert onsite repairs, adjustments, setups, and post-installation tuning.
+                    </p>
+                </div>
+
+                <!-- Pillar Card 2 -->
+                <div class="catalog-card glass-panel p-6 sm:p-8 rounded-2xl group reveal-element" style="transition-delay: 150ms;">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-brand-orange/10 border border-brand-orange/30 flex items-center justify-center text-brand-orange text-xl sm:text-2xl mb-5 sm:mb-6 group-hover:bg-brand-orange group-hover:text-black transition-all duration-500">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3">AI & Smart Surveillance</h3>
+                    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">
+                        From solo smart solar security cameras to massive multi-channel enterprise systems. Real-time notifications, intelligent tracking, and high-def monitoring.
+                    </p>
+                </div>
+
+                <!-- Pillar Card 3 -->
+                <div class="catalog-card glass-panel p-6 sm:p-8 rounded-2xl group reveal-element" style="transition-delay: 250ms;">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-brand-orange/10 border border-brand-orange/30 flex items-center justify-center text-brand-orange text-xl sm:text-2xl mb-5 sm:mb-6 group-hover:bg-brand-orange group-hover:text-black transition-all duration-500">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3">Custom Enterprise Code</h3>
+                    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">
+                        Next-level web design, interactive dynamic web portals, robust IT structure consulting, and complete custom School Management automation systems.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SERVICES SECTION ========== -->
+    <section id="services" class="py-16 sm:py-20 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 gap-4 sm:gap-6 reveal-element">
+                <div>
+                    <span class="text-brand-orange text-sm font-semibold uppercase tracking-widest font-mono">Our Premium Ecosystem</span>
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mt-2 font-space">Services & Solutions</h2>
+                </div>
+                <!-- Mobile-friendly filter tabs with scroll -->
+                <div class="flex gap-2 bg-brand-darkGray/60 p-1.5 rounded-xl border border-white/5 max-w-max glass-panel overflow-x-auto scrollbar-hide">
+                    <button onclick="filterCatalog('all')" id="tab-all" class="filter-tab px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold bg-brand-orange text-white transition-all whitespace-nowrap active:scale-95">All Products & Services</button>
+                    <button onclick="filterCatalog('cctv')" id="tab-cctv" class="filter-tab px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold text-gray-400 hover:text-white transition-all whitespace-nowrap active:scale-95">CCTV & Solar</button>
+                    <button onclick="filterCatalog('software')" id="tab-software" class="filter-tab px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold text-gray-400 hover:text-white transition-all whitespace-nowrap active:scale-95">IT & Software</button>
+                    <button onclick="filterCatalog('accessories')" id="tab-accessories" class="filter-tab px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold text-gray-400 hover:text-white transition-all whitespace-nowrap active:scale-95">Accessories</button>
+                </div>
+            </div>
+
+            <!-- Service Grid -->
+            <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                
+                <!-- Cards appended below in continuation file section -->
+                <!-- Cards will be injected via JS or via continuation markup below -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== QUOTE ESTIMATOR / CONFIGURATOR ========== -->
+    <section id="quote-estimator" class="py-16 sm:py-20 bg-brand-darkGray/40 relative border-y border-white/5 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-4 reveal-element">
+                <span class="text-brand-orange text-sm font-semibold uppercase tracking-widest font-mono">Instant Estimate</span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white font-space">Build Your Perfect System</h2>
+                <p class="text-gray-400 text-sm sm:text-base">Select your configuration below and get an instant ballpark estimate. Final quotes may vary based on onsite survey.</p>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-4 sm:p-6 md:p-10 reveal-element">
+                <!-- Step 1: Channel Selection -->
+                <div class="mb-8 sm:mb-10">
+                    <h3 class="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Step 1: Choose Base Channel Count</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                        <button onclick="selectCctvChannels(2, 120)" id="ch-2" class="channel-btn p-3 sm:p-4 rounded-xl border border-white/10 bg-white/5 hover:border-brand-orange/50 text-center transition-all active:scale-95 min-h-[60px] sm:min-h-[70px]">
+                            <span class="block text-xl sm:text-2xl font-bold text-white font-space">2 CH</span>
+                            <span class="text-[10px] sm:text-xs text-gray-400">$120 Base</span>
+                        </button>
+                        <button onclick="selectCctvChannels(4, 220)" id="ch-4" class="channel-btn p-3 sm:p-4 rounded-xl border-2 border-brand-orange bg-brand-orange/10 text-center transition-all shadow-neon-orange active:scale-95 min-h-[60px] sm:min-h-[70px]">
+                            <span class="block text-xl sm:text-2xl font-bold text-white font-space">4 CH</span>
+                            <span class="text-[10px] sm:text-xs text-gray-400">$220 Base</span>
+                        </button>
+                        <button onclick="selectCctvChannels(8, 350)" id="ch-8" class="channel-btn p-3 sm:p-4 rounded-xl border border-white/10 bg-white/5 hover:border-brand-orange/50 text-center transition-all active:scale-95 min-h-[60px] sm:min-h-[70px]">
+                            <span class="block text-xl sm:text-2xl font-bold text-white font-space">8 CH</span>
+                            <span class="text-[10px] sm:text-xs text-gray-400">$350 Base</span>
+                        </button>
+                        <button onclick="selectCctvChannels(16, 550)" id="ch-16" class="channel-btn p-3 sm:p-4 rounded-xl border border-white/10 bg-white/5 hover:border-brand-orange/50 text-center transition-all active:scale-95 min-h-[60px] sm:min-h-[70px]">
+                            <span class="block text-xl sm:text-2xl font-bold text-white font-space">16 CH</span>
+                            <span class="text-[10px] sm:text-xs text-gray-400">$550 Base</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Camera Counters -->
+                <div class="mb-8 sm:mb-10">
+                    <h3 class="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Step 2: Add Individual Cameras</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                        <!-- Outdoor -->
+                        <div class="bg-white/5 rounded-xl p-4 sm:p-5 border border-white/5">
+                            <div class="flex items-center justify-between mb-3 sm:mb-4">
+                                <div>
+                                    <span class="block text-white font-semibold text-sm sm:text-base">Outdoor Bullet Cameras</span>
+                                    <span class="text-[10px] sm:text-xs text-gray-400">$35 each</span>
+                                </div>
+                                <div class="flex items-center gap-2 sm:gap-3">
+                                    <button onclick="adjustCounter('outdoor', -1)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-brand-orange/20 hover:border-brand-orange/40 transition-all active:scale-90 text-base sm:text-lg">-</button>
+                                    <span id="counter-outdoor" class="text-white font-bold w-4 sm:w-5 text-center text-sm sm:text-base">0</span>
+                                    <button onclick="adjustCounter('outdoor', 1)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-brand-orange/20 hover:border-brand-orange/40 transition-all active:scale-90 text-base sm:text-lg">+</button>
+                                </div>
+                            </div>
+                            <p class="text-[10px] sm:text-xs text-gray-500">Weatherproof outdoor units with IR night vision.</p>
+                        </div>
+                        <!-- Indoor -->
+                        <div class="bg-white/5 rounded-xl p-4 sm:p-5 border border-white/5">
+                            <div class="flex items-center justify-between mb-3 sm:mb-4">
+                                <div>
+                                    <span class="block text-white font-semibold text-sm sm:text-base">Indoor Dome Cameras</span>
+                                    <span class="text-[10px] sm:text-xs text-gray-400">$30 each</span>
+                                </div>
+                                <div class="flex items-center gap-2 sm:gap-3">
+                                    <button onclick="adjustCounter('indoor', -1)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-brand-orange/20 hover:border-brand-orange/40 transition-all active:scale-90 text-base sm:text-lg">-</button>
+                                    <span id="counter-indoor" class="text-white font-bold w-4 sm:w-5 text-center text-sm sm:text-base">0</span>
+                                    <button onclick="adjustCounter('indoor', 1)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-brand-orange/20 hover:border-brand-orange/40 transition-all active:scale-90 text-base sm:text-lg">+</button>
+                                </div>
+                            </div>
+                            <p class="text-[10px] sm:text-xs text-gray-500">Low-profile interior dome shapes.</p>
+                        </div>
+                        <!-- Solar -->
+                        <div class="bg-white/5 rounded-xl p-4 sm:p-5 border border-white/5">
+                            <div class="flex items-center justify-between mb-3 sm:mb-4">
+                                <div>
+                                    <span class="block text-white font-semibold text-sm sm:text-base">Solar Standalone Cameras</span>
+                                    <span class="text-[10px] sm:text-xs text-gray-400">$85 each</span>
+                                </div>
+                                <div class="flex items-center gap-2 sm:gap-3">
+                                    <button onclick="adjustCounter('solar', -1)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-brand-orange/20 hover:border-brand-orange/40 transition-all active:scale-90 text-base sm:text-lg">-</button>
+                                    <span id="counter-solar" class="text-white font-bold w-4 sm:w-5 text-center text-sm sm:text-base">0</span>
+                                    <button onclick="adjustCounter('solar', 1)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-brand-orange/20 hover:border-brand-orange/40 transition-all active:scale-90 text-base sm:text-lg">+</button>
+                                </div>
+                            </div>
+                            <p class="text-[10px] sm:text-xs text-gray-500">Load-shedding proof, 4G/WiFi enabled.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Addons -->
+                <div class="mb-8 sm:mb-10">
+                    <h3 class="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Step 3: Service Addons</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        <label class="flex items-center justify-between bg-white/5 rounded-xl p-4 sm:p-5 border border-white/5 cursor-pointer hover:border-brand-orange/30 transition-all active:scale-[0.98]">
+                            <div>
+                                <span class="block text-white font-semibold text-sm sm:text-base">Custom Web Integration</span>
+                                <span class="text-[10px] sm:text-xs text-gray-400">Live dashboard & remote viewing portal. +$350</span>
+                            </div>
+                            <input type="checkbox" id="add-web-dev" onchange="toggleAddon('web', 350)" class="w-5 h-5 rounded border-gray-600 text-brand-orange focus:ring-brand-orange bg-gray-800">
+                        </label>
+                        <label class="flex items-center justify-between bg-white/5 rounded-xl p-4 sm:p-5 border border-white/5 cursor-pointer hover:border-brand-orange/30 transition-all active:scale-[0.98]">
+                            <div>
+                                <span class="block text-white font-semibold text-sm sm:text-base">School Management Module</span>
+                                <span class="text-[10px] sm:text-xs text-gray-400">Attendance, grades & fees system. +$500</span>
+                            </div>
+                            <input type="checkbox" id="add-school-system" onchange="toggleAddon('school', 500)" class="w-5 h-5 rounded border-gray-600 text-brand-orange focus:ring-brand-orange bg-gray-800">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Total & Action -->
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6 pt-6 sm:pt-8 border-t border-white/10">
+                    <div class="text-center md:text-left">
+                        <span class="block text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider mb-1">Estimated Total</span>
+                        <span class="text-3xl sm:text-4xl font-extrabold text-brand-orange font-space" id="quote-total">$220.00</span>
+                    </div>
+                    <button onclick="sendWhatsAppQuote()" class="w-full md:w-auto flex items-center justify-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl bg-brand-orange text-white font-bold hover:bg-brand-orangeLight hover:shadow-neon-glow transition-all duration-300 active:scale-95 text-base">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                        <span>Send to Sales Team</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== INTERACTIVE DIAGNOSTIC SYMPTOM HUB ========== -->
+    <section id="diagnostics" class="py-16 sm:py-20 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-4 reveal-element">
+                <span class="text-brand-orange text-sm font-semibold uppercase tracking-widest font-mono">Smart Troubleshooter</span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white font-space">What's the Symptom?</h2>
+                <p class="text-gray-400 text-sm sm:text-base">Select the issue you are experiencing. Our AI-assisted diagnostic engine will provide immediate recommendations.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-10">
+                <button onclick="setDiagnostic('beeping')" id="diag-beeping" class="diag-opt-btn p-4 sm:p-5 rounded-xl border border-white/10 bg-white/5 hover:border-brand-orange/40 text-left transition-all flex gap-3 items-center active:scale-[0.98] active:border-brand-orange/60">
+                    <i class="fa-solid fa-volume-high text-brand-orange text-lg sm:text-xl"></i>
+                    <div>
+                        <span class="block text-white font-semibold text-sm sm:text-base">Beeping DVR/NVR</span>
+                        <span class="text-[10px] sm:text-xs text-gray-400">Storage / HDD failure likely</span>
+                    </div>
+                </button>
+                <button onclick="setDiagnostic('dark')" id="diag-dark" class="diag-opt-btn p-4 sm:p-5 rounded-xl border border-white/10 bg-white/5 hover:border-brand-orange/40 text-left transition-all flex gap-3 items-center active:scale-[0.98] active:border-brand-orange/60">
+                    <i class="fa-solid fa-video-slash text-brand-orange text-lg sm:text-xl"></i>
+                    <div>
+                        <span class="block text-white font-semibold text-sm sm:text-base">Cameras Dark / Offline</span>
+                        <span class="text-[10px] sm:text-xs text-gray-400">Power or cabling fault</span>
+                    </div>
+                </button>
+                <button onclick="setDiagnostic('solar')" id="diag-solar" class="diag-opt-btn p-4 sm:p-5 rounded-xl border border-white/10 bg-white/5 hover:border-brand-orange/40 text-left transition-all flex gap-3 items-center active:scale-[0.98] active:border-brand-orange/60">
+                    <i class="fa-solid fa-solar-panel text-brand-orange text-lg sm:text-xl"></i>
+                    <div>
+                        <span class="block text-white font-semibold text-sm sm:text-base">Solar Battery Draining</span>
+                        <span class="text-[10px] sm:text-xs text-gray-400">Panel or cell degradation</span>
+                    </div>
+                </button>
+                <button onclick="setDiagnostic('blurry')" id="diag-blurry" class="diag-opt-btn p-4 sm:p-5 rounded-xl border border-white/10 bg-white/5 hover:border-brand-orange/40 text-left transition-all flex gap-3 items-center active:scale-[0.98] active:border-brand-orange/60">
+                    <i class="fa-solid fa-eye text-brand-orange text-lg sm:text-xl"></i>
+                    <div>
+                        <span class="block text-white font-semibold text-sm sm:text-base">Blurry Night Vision</span>
+                        <span class="text-[10px] sm:text-xs text-gray-400">Dirty lens or focus drift</span>
+                    </div>
+                </button>
+            </div>
+
+            <div id="diag-output-box" class="hidden glass-panel rounded-2xl p-5 sm:p-6 md:p-8 transition-all reveal-element">
+                <div id="diag-output-text" class="text-sm text-gray-300 leading-relaxed"></div>
+                <button onclick="dispatchTech()" class="mt-5 sm:mt-6 w-full sm:w-auto flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-brand-orange text-white font-bold hover:bg-brand-orangeLight transition-all active:scale-95 text-sm sm:text-base">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <span>Request Technician Dispatch</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== LOAD SHEDDING CALCULATOR ========== -->
+    <section id="load-shedding" class="py-16 sm:py-20 bg-brand-black/60 relative border-y border-white/5 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-4 reveal-element">
+                <span class="text-brand-orange text-sm font-semibold uppercase tracking-widest font-mono">Uptime Estimator</span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white font-space">How long will my system run?</h2>
+                <p class="text-gray-400 text-sm sm:text-base">Calculate your backup runtime based on battery size, camera count, and battery chemistry.</p>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-4 sm:p-6 md:p-10 reveal-element">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10">
+                    <!-- Controls -->
+                    <div class="space-y-6 sm:space-y-8">
+                        <div>
+                            <label class="block text-sm font-semibold text-white mb-2 sm:mb-3">Number of Cameras</label>
+                            <div class="flex items-center gap-3 sm:gap-4">
+                                <input type="range" id="calc-cameras" min="1" max="16" value="4" oninput="calculateBackup()" class="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-brand-orange">
+                                <span id="label-cameras" class="text-white font-bold font-mono w-14 sm:w-16 text-right text-sm sm:text-base">4 Cams</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-white mb-2 sm:mb-3">Battery Capacity</label>
+                            <div class="flex flex-wrap gap-2 sm:gap-3">
+                                <button onclick="selectBatterySize(7)" id="bat-7" class="bat-btn py-2 text-xs font-mono font-bold rounded-lg border border-white/10 bg-white/5 text-center transition-all hover:border-brand-orange/40 active:scale-95 min-h-[40px]">7 Ah</button>
+                                <button onclick="selectBatterySize(12)" id="bat-12" class="bat-btn py-2 text-xs font-mono font-bold rounded-lg border border-white/10 bg-white/5 text-center transition-all hover:border-brand-orange/40 active:scale-95 min-h-[40px]">12 Ah</button>
+                                <button onclick="selectBatterySize(20)" id="bat-20" class="bat-btn py-2 text-xs font-mono font-bold rounded-lg border-2 border-brand-orange bg-brand-orange/10 text-center transition-all shadow-neon-orange active:scale-95 min-h-[40px]">20 Ah</button>
+                                <button onclick="selectBatterySize(100)" id="bat-100" class="bat-btn py-2 text-xs font-mono font-bold rounded-lg border border-white/10 bg-white/5 text-center transition-all hover:border-brand-orange/40 active:scale-95 min-h-[40px]">100 Ah</button>
+                                <button onclick="selectBatterySize(200)" id="bat-200" class="bat-btn py-2 text-xs font-mono font-bold rounded-lg border border-white/10 bg-white/5 text-center transition-all hover:border-brand-orange/40 active:scale-95 min-h-[40px]">200 Ah</button>
+                            </div>
+                            <input type="hidden" id="calc-battery-capacity" value="20">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-white mb-2 sm:mb-3">Battery Chemistry</label>
+                            <div class="flex flex-col xs:flex-row gap-3 sm:gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer active:scale-[0.98]">
+                                    <input type="radio" name="calc-tech" value="lead" onchange="calculateBackup()" class="w-4 h-4 text-brand-orange bg-gray-800 border-gray-600 focus:ring-brand-orange">
+                                    <span class="text-gray-300 text-sm">Lead Acid</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer active:scale-[0.98]">
+                                    <input type="radio" name="calc-tech" value="lithium" checked onchange="calculateBackup()" class="w-4 h-4 text-brand-orange bg-gray-800 border-gray-600 focus:ring-brand-orange">
+                                    <span class="text-gray-300 text-sm">Lithium</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Result Display -->
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="relative w-40 h-52 sm:w-48 sm:h-64 bg-white/5 rounded-2xl border border-white/10 p-3 sm:p-4 flex flex-col items-center justify-end">
+                            <div class="absolute top-3 sm:top-4 left-0 right-0 text-center">
+                                <span class="text-[10px] sm:text-xs text-gray-400 font-mono">BACKUP REMAINING</span>
+                            </div>
+                            <div id="calc-battery-fill" class="w-full bg-brand-orange/30 rounded-t-lg transition-all duration-500" style="height: 50%;">
+                                <div class="text-center pt-2 sm:pt-3">
+                                    <span id="calc-result-hours" class="text-2xl sm:text-3xl font-extrabold text-brand-orange font-space">12.0 Hrs</span>
+                                </div>
+                            </div>
+                            <span id="calc-battery-fill-pct" class="mt-2 text-[9px] sm:text-[10px] text-gray-500 font-mono">50% Max Safe Discharge</span>
+                        </div>
+                        <p class="mt-3 sm:mt-4 text-[10px] sm:text-xs text-gray-500 text-center max-w-xs">Estimates are based on average camera consumption of 6W. Actual results depend on device count and settings.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== CASE STUDIES / PROJECTS SHOWCASE ========== -->
+    <section id="projects" class="py-16 sm:py-20 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-4 reveal-element">
+                <span class="text-brand-orange text-sm font-semibold uppercase tracking-widest font-mono">Proven Deployments</span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white font-space">Recent Case Studies</h2>
+                <p class="text-gray-400 text-sm sm:text-base">A snapshot of real installations we have completed across commercial, residential, and industrial sectors.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <!-- Project 1 -->
+                <div class="catalog-card glass-panel rounded-2xl overflow-hidden hover:shadow-neon-orange flex flex-col group reveal-element" style="transition-delay: 50ms;">
+                    <div class="relative h-40 sm:h-48 bg-brand-darkGray flex items-center justify-center overflow-hidden border-b border-white/5">
+                        <i class="fa-solid fa-city text-3xl sm:text-4xl text-brand-orange/60"></i>
+                    </div>
+                    <div class="p-4 sm:p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] sm:text-xs text-brand-orange font-mono font-bold uppercase">Commercial Complex</span>
+                            <h3 class="text-base sm:text-lg font-bold text-white mt-1">Avondale Shopping Centre</h3>
+                            <p class="text-gray-400 text-xs sm:text-sm mt-2">32-Channel Hikvision IP system with ANPR for gated entry and 24/7 monitoring hub installation.</p>
+                        </div>
+                        <div class="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/5 flex items-center justify-between">
+                            <span class="text-[10px] sm:text-xs text-gray-500 font-mono">32 Cameras</span>
+                            <a href="https://wa.me/263778141047?text=Hi%20UG%20tech,%20can%20you%20share%20more%20details%20on%20the%20Avondale%20Shopping%20Centre%20project?" target="_blank" class="text-brand-orange text-xs sm:text-sm font-bold hover:text-brand-orangeLight transition-colors active:scale-95">View Details <i class="fa-solid fa-chevron-right text-[10px] sm:text-xs"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="catalog-card glass-panel rounded-2xl overflow-hidden hover:shadow-neon-orange flex flex-col group reveal-element" style="transition-delay: 100ms;">
+                    <div class="relative h-40 sm:h-48 bg-brand-darkGray flex items-center justify-center overflow-hidden border-b border-white/5">
+                        <i class="fa-solid fa-industry text-3xl sm:text-4xl text-brand-orange/60"></i>
+                    </div>
+                    <div class="p-4 sm:p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] sm:text-xs text-brand-orange font-mono font-bold uppercase">Industrial Warehouse</span>
+                            <h3 class="text-base sm:text-lg font-bold text-white mt-1">Msasa Industrial Park</h3>
+                            <p class="text-gray-400 text-xs sm:text-sm mt-2">Full warehouse perimeter security with thermal detection PTZ domes and solar power backup arrays.</p>
+                        </div>
+                        <div class="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/5 flex items-center justify-between">
+                            <span class="text-[10px] sm:text-xs text-gray-500 font-mono">16 Cameras</span>
+                            <a href="https://wa.me/263778141047?text=Hi%20UG%20tech,%20I%20am%20interested%20in%20the%20Msasa%20Industrial%20Park%20case%20study." target="_blank" class="text-brand-orange text-xs sm:text-sm font-bold hover:text-brand-orangeLight transition-colors active:scale-95">View Details <i class="fa-solid fa-chevron-right text-[10px] sm:text-xs"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="catalog-card glass-panel rounded-2xl overflow-hidden hover:shadow-neon-orange flex flex-col group reveal-element" style="transition-delay: 150ms;">
+                    <div class="relative h-40 sm:h-48 bg-brand-darkGray flex items-center justify-center overflow-hidden border-b border-white/5">
+                        <i class="fa-solid fa-house-chimney text-3xl sm:text-4xl text-brand-orange/60"></i>
+                    </div>
+                    <div class="p-4 sm:p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] sm:text-xs text-brand-orange font-mono font-bold uppercase">Residential Estate</span>
+                            <h3 class="text-base sm:text-lg font-bold text-white mt-1">Borrowdale Brooke</h3>
+                            <p class="text-gray-400 text-xs sm:text-sm mt-2">Smart solar perimeter cameras with live mobile streaming for 48 residential homes in a gated community.</p>
+                        </div>
+                        <div class="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/5 flex items-center justify-between">
+                            <span class="text-[10px] sm:text-xs text-gray-500 font-mono">48 Cameras</span>
+                            <a href="https://wa.me/263778141047?text=Hi%20UG%20tech,%20I%20would%20like%20to%20replicate%20the%20Borrowdale%20Brooke%20setup." target="_blank" class="text-brand-orange text-xs sm:text-sm font-bold hover:text-brand-orangeLight transition-colors active:scale-95">View Details <i class="fa-solid fa-chevron-right text-[10px] sm:text-xs"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== LOCATION / CONTACT SECTION ========== -->
+    <section id="location" class="py-16 sm:py-20 bg-brand-darkGray/40 relative border-y border-white/5 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-16 space-y-4 reveal-element">
+                <span class="text-brand-orange text-sm font-semibold uppercase tracking-widest font-mono">Visit Us</span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white font-space">Find Our Workshop</h2>
+            </div>
+
+            <div class="glass-panel rounded-2xl overflow-hidden reveal-element">
+                <div id="map" class="h-64 sm:h-80 md:h-96 w-full bg-brand-darkGray"></div>
+            </div>
+
+            <div class="mt-6 sm:mt-8 text-center space-y-2 sm:space-y-3">
+                <p class="text-gray-400 text-sm sm:text-base"><i class="fa-solid fa-location-dot text-brand-orange mr-2"></i> 7 Rhino Close, Vainona, Harare, Zimbabwe</p>
+                <p class="text-gray-400 text-sm sm:text-base"><i class="fa-solid fa-envelope text-brand-orange mr-2"></i> sales@ugtech.co.zw</p>
+                <p class="text-gray-400 text-sm sm:text-base"><i class="fa-solid fa-phone text-brand-orange mr-2"></i> +263 77 814 1047</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FAQ SECTION ========== -->
+    <section id="faqs" class="py-16 sm:py-20 relative z-10">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10 sm:mb-16 space-y-4 reveal-element">
+                <span class="text-brand-orange text-sm font-semibold uppercase tracking-widest font-mono">Support</span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white font-space">Common Questions</h2>
+            </div>
+
+            <div class="space-y-3 sm:space-y-4">
+                <div class="glass-panel rounded-xl overflow-hidden">
+                    <button onclick="toggleFaq('faq1')" class="w-full flex items-center justify-between p-4 sm:p-5 text-left active:bg-white/5 transition-colors">
+                        <span class="text-white font-semibold text-sm sm:text-base pr-4">Do you offer free site surveys?</span>
+                        <i id="faq1-icon" class="fa-solid fa-chevron-down text-brand-orange transition-transform duration-300 shrink-0"></i>
+                    </button>
+                    <div id="faq1-ans" class="hidden px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-gray-400 leading-relaxed">
+                        Yes! We provide complimentary technical assessments for commercial and residential properties greater than 4 camera points. Contact us to schedule.
+                    </div>
+                </div>
+                <div class="glass-panel rounded-xl overflow-hidden">
+                    <button onclick="toggleFaq('faq2')" class="w-full flex items-center justify-between p-4 sm:p-5 text-left active:bg-white/5 transition-colors">
+                        <span class="text-white font-semibold text-sm sm:text-base pr-4">What payment methods do you accept?</span>
+                        <i id="faq2-icon" class="fa-solid fa-chevron-down text-brand-orange transition-transform duration-300 shrink-0"></i>
+                    </button>
+                    <div id="faq2-ans" class="hidden px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-gray-400 leading-relaxed">
+                        We accept EcoCash, USD cash, bank transfer, and major credit cards. Payment plans are available for large enterprise installs.
+                    </div>
+                </div>
+                <div class="glass-panel rounded-xl overflow-hidden">
+                    <button onclick="toggleFaq('faq3')" class="w-full flex items-center justify-between p-4 sm:p-5 text-left active:bg-white/5 transition-colors">
+                        <span class="text-white font-semibold text-sm sm:text-base pr-4">How long does installation take?</span>
+                        <i id="faq3-icon" class="fa-solid fa-chevron-down text-brand-orange transition-transform duration-300 shrink-0"></i>
+                    </button>
+                    <div id="faq3-ans" class="hidden px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-gray-400 leading-relaxed">
+                        Standard residential 4-camera installs are completed within 4-6 hours. Large commercial projects vary but typically conclude within 1-2 days.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="py-10 sm:py-12 border-t border-white/5 bg-brand-black relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center gap-4 sm:gap-6">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-brand-orange to-black border border-brand-orange/40 shadow-neon-orange">
+                    <i class="fa-solid fa-shield-halved text-brand-white text-sm sm:text-lg"></i>
+                </div>
+                <span class="text-lg sm:text-xl font-bold tracking-tight text-white">UG<span class="text-brand-orange"> tech</span></span>
+            </div>
+            <p class="text-gray-500 text-xs sm:text-sm">
+                &copy; 2026 UG tech. All Rights Reserved.
+            </p>
+            <p class="text-gray-600 text-[10px] sm:text-xs">
+                Supply & Fix Hub - 7 Rhino Close, Vainona, Harare, Zimbabwe.
+            </p>
+            <div class="flex items-center gap-4 sm:gap-5">
+                <a href="#" class="text-gray-400 hover:text-brand-orange transition-colors active:scale-110 text-sm sm:text-base" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" class="text-gray-400 hover:text-brand-orange transition-colors active:scale-110 text-sm sm:text-base" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="https://wa.me/263778141047" target="_blank" class="text-gray-400 hover:text-brand-orange transition-colors active:scale-110 text-sm sm:text-base" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== DYNAMIC MOBILE BOTTOM NAVIGATION BAR ========== -->
+    <nav id="mobile-bottom-nav" class="fixed bottom-0 inset-x-0 z-50 md:hidden glass-panel border-t border-white/5 lg:hidden safe-area-pb" style="backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); padding-bottom: env(safe-area-inset-bottom, 0px);" aria-label="Quick actions">
+        <div class="flex items-stretch justify-around gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2">
+            <!-- Call Button -->
+            <button id="mob-nav-call" class="mob-nav-btn flex flex-1 flex-col items-center justify-center gap-0.5 sm:gap-1 rounded-xl py-1.5 sm:py-2 text-gray-300 active:scale-90 active:bg-brand-orangeLight/20 transition-all" aria-label="Call us">
+                <i class="fa-solid fa-phone text-sm sm:text-lg text-brand-orange"></i>
+                <span class="text-[9px] sm:text-[10px] font-semibold leading-tight">Call</span>
+            </button>
+
+            <!-- WhatsApp Button -->
+            <a href="https://wa.me/263778141047?text=Hi%20UG%20tech,%20I%20need%20assistance." target="_blank" class="mob-nav-btn-link flex flex-1">
+                <button class="mob-nav-btn flex w-full flex-col items-center justify-center gap-0.5 sm:gap-1 rounded-xl py-1.5 sm:py-2 text-gray-300 active:scale-90 active:bg-brand-orangeLight/20 transition-all" aria-label="WhatsApp chat">
+                    <i class="fa-brands fa-whatsapp text-sm sm:text-lg text-brand-orange"></i>
+                    <span class="text-[9px] sm:text-[10px] font-semibold leading-tight">Chat</span>
+                </button>
+            </a>
+
+            <!-- Configurator Button -->
+            <button id="mob-nav-configurator" class="mob-nav-btn flex flex-1 flex-col items-center justify-center gap-0.5 sm:gap-1 rounded-xl py-1.5 sm:py-2 text-gray-300 active:scale-90 active:bg-brand-orangeLight/20 transition-all" aria-label="Quote estimator">
+                <i class="fa-solid fa-sliders text-sm sm:text-lg text-brand-orange"></i>
+                <span class="text-[9px] sm:text-[10px] font-semibold leading-tight">Config</span>
+            </button>
+
+            <!-- Diagnostics Button -->
+            <button id="mob-nav-diagnostics" class="mob-nav-btn flex flex-1 flex-col items-center justify-center gap-0.5 sm:gap-1 rounded-xl py-1.5 sm:py-2 text-gray-300 active:scale-90 active:bg-brand-orangeLight/20 transition-all" aria-label="Diagnostics">
+                <i class="fa-solid fa-stethoscope text-sm sm:text-lg text-brand-orange"></i>
+                <span class="text-[9px] sm:text-[10px] font-semibold leading-tight">Diagnose</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========== TOUCH-AWARE UTILITY SCRIPT ========== -->
+    <script>
+        (function() {
+            'use strict';
+            
+            // Touch detection
+            var isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.matchMedia('(pointer: coarse)').matches);
+            
+            if (isTouchDevice) {
+                // Hide custom cursor elements on touch devices
+                var cursorRing = document.getElementById('custom-cursor-ring');
+                var cursorDot = document.getElementById('custom-cursor-dot');
+                if (cursorRing) cursorRing.style.display = 'none';
+                if (cursorDot) cursorDot.style.display = 'none';
+                
+                // Disable 3D tilt on mobile for performance
+                document.querySelectorAll('.catalog-card').forEach(function(card) {
+                    card.style.transform = '';
+                    card.style.transition = 'opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease';
+                });
+            }
+            
+            // AI Video Canvas Touch Controls - Advanced touch interaction
+            var heroCanvas = document.getElementById('ai-video-canvas');
+            if (heroCanvas && isTouchDevice) {
+                // Touch start - initial tap to set target
+                heroCanvas.addEventListener('touchstart', function(e) {
+                    if (!e.touches.length) return;
+                    var rect = heroCanvas.getBoundingClientRect();
+                    var tx = e.touches[0].clientX - rect.left;
+                    var ty = e.touches[0].clientY - rect.top;
+                    var normX = ((tx / (rect.width || 1)) * 100).toFixed(2);
+                    var normY = ((ty / (rect.height || 1)) * 100).toFixed(2);
+                    var hudCoords = document.getElementById('hud-coords');
+                    if (hudCoords) hudCoords.innerText = normX + '° E, ' + normY + '° S';
+                    
+                    // Provide haptic feedback if available
+                    if (navigator.vibrate) {
+                        navigator.vibrate(10);
+                    }
+                }, { passive: true });
+                
+                // Touch move - drag to track target
+                heroCanvas.addEventListener('touchmove', function(e) {
+                    if (!e.touches.length) return;
+                    e.preventDefault();
+                    var rect = heroCanvas.getBoundingClientRect();
+                    var tx = e.touches[0].clientX - rect.left;
+                    var ty = e.touches[0].clientY - rect.top;
+                    var normX = ((tx / (rect.width || 1)) * 100).toFixed(2);
+                    var normY = ((ty / (rect.height || 1)) * 100).toFixed(2);
+                    var hudCoords = document.getElementById('hud-coords');
+                    if (hudCoords) hudCoords.innerText = normX + '° E, ' + normY + '° S';
+                    
+                    // Dispatch mouse event for JS simulator compatibility
+                    var evt = new MouseEvent('mousemove', { 
+                        clientX: e.touches[0].clientX, 
+                        clientY: e.touches[0].clientY 
+                    });
+                    heroCanvas.dispatchEvent(evt);
+                }, { passive: false });
+                
+                // Touch end - finalize target selection with haptic click
+                heroCanvas.addEventListener('touchend', function(e) {
+                    if (navigator.vibrate) {
+                        navigator.vibrate(15);
+                    }
+                });
+            }
+            
+            // Touch feedback for catalog cards
+            document.querySelectorAll('.catalog-card').forEach(function(card) {
+                if (isTouchDevice) {
+                    card.addEventListener('touchstart', function() {
+                        card.style.borderColor = 'rgba(255, 107, 0, 0.35)';
+                        if (navigator.vibrate) {
+                            navigator.vibrate(5);
+                        }
+                    }, { passive: true });
+                    card.addEventListener('touchend', function() {
+                        setTimeout(function() {
+                            card.style.borderColor = '';
+                        }, 150);
+                    });
+                }
+            });
+            
+            // Mobile Bottom Navigation Event Listeners
+            var mobCall = document.getElementById('mob-nav-call');
+            var mobWhatsapp = document.querySelector('.mob-nav-btn-link');
+            var mobConfig = document.getElementById('mob-nav-configurator');
+            var mobDiag = document.getElementById('mob-nav-diagnostics');
+            
+            if (mobCall) {
+                mobCall.addEventListener('click', function() {
+                    window.open('tel:+263778141047', '_self');
+                    if (navigator.vibrate) navigator.vibrate(20);
+                });
+            }
+            
+            if (mobConfig) {
+                mobConfig.addEventListener('click', function() {
+                    window.location.href = '#quote-estimator';
+                    if (navigator.vibrate) navigator.vibrate(10);
+                });
+            }
+            
+            if (mobDiag) {
+                mobDiag.addEventListener('click', function() {
+                    window.location.href = '#diagnostics';
+                    if (navigator.vibrate) navigator.vibrate(10);
+                });
+            }
+            
+            // Optimize mobile bottom nav visibility based on scroll position
+            var mobileBottomNav = document.getElementById('mobile-bottom-nav');
+            var lastScrollY = 0;
+            var scrollThreshold = 100;
+            
+            if (mobileBottomNav && isTouchDevice) {
+                window.addEventListener('scroll', function() {
+                    var currentScrollY = window.pageYOffset;
+                    
+                    if (currentScrollY > lastScrollY && currentScrollY > scrollThreshold) {
+                        // Scrolling down - hide bottom nav
+                        mobileBottomNav.style.transform = 'translateY(100%)';
+                        mobileBottomNav.style.transition = 'transform 0.3s ease-in-out';
+                    } else {
+                        // Scrolling up - show bottom nav
+                        mobileBottomNav.style.transform = 'translateY(0)';
+                        mobileBottomNav.style.transition = 'transform 0.3s ease-in-out';
+                    }
+                    
+                    lastScrollY = currentScrollY;
+                }, { passive: true });
+            }
+        })();
+    </script>
+
+    <!-- Main JavaScript -->
+    <script src="js/main.js"></script>
+</body>
+</html>
