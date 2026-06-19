@@ -1012,4 +1012,13 @@ input[type='checkbox'] {
       touch-action: manipulation;
     }
   }
+
+  /* Subtle hero particle background: keep ambient but never overpower text */
+  #bg-particles {
+    opacity: 0.85;
+  }
+
+  #hero {
+    isolation: isolate;
+  }
 }
